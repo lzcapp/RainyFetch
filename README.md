@@ -1,0 +1,3 @@
+# RainyFetch
+
+![Screenshot](./screenshot.png")
