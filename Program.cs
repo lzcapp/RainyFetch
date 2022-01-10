@@ -27,7 +27,8 @@ namespace RainyFetch {
         private static int intLineNum = 0;
         private static readonly Dictionary<string, string[]> dict = new() {
             { "Win32_ComputerSystem", new string[] { "UserName", "Name" } },
-            { "Win32_OperatingSystem", new string[] { "Caption", "Version", "OSArchitecture" } }
+            { "Win32_OperatingSystem", new string[] { "Caption", "Version", "OSArchitecture" } },
+            { "Win32_PhysicalMemory", new string[] { "Capacity" } }
         };
 
         static void Main() {
@@ -61,7 +62,9 @@ namespace RainyFetch {
             Query("GPU", "Win32_VideoController", "Name");
 
             PrintLogo();
-            Query("MEM", "Win32_PhysicalMemory", "Capacity");
+            var dictMEM = WMIC("Win32_PhysicalMemory");
+            dictMEM["Capacity"] = (double.Parse(dictMEM["Capacity"]) / 1024 / 1024 / 1024).ToString() + "GB";
+            Query("O S", dictMEM, "Capacity");
 
             PrintLogo();
             Console.WriteLine();
@@ -79,25 +82,6 @@ namespace RainyFetch {
             Console.Write("  Press any key to exit...");
             Console.ReadKey();
         }
-
-        private static Dictionary<string, string> WMIC(string strObject) {
-            string[] properties = dict[strObject];
-            Dictionary<string, string> wmicDict = new();
-            mc.Path = new ManagementPath(strObject);
-            mc.Options.UseAmendedQualifiers = false;
-            ManagementObjectCollection moc = mc.GetInstances();
-
-            for (int i = 0; i < properties.Length; i++) {
-                var strResult = "";
-                foreach (ManagementObject mo in moc) {
-                    strResult += mo.Properties[properties[i]].Value.ToString();
-                }
-                wmicDict.Add(properties[i], strResult);
-            }
-            
-            return wmicDict;
-        }
-
 
         private static void Query(string strClass, string strObject) {
             Query("", strClass, strObject);
@@ -130,20 +114,43 @@ namespace RainyFetch {
             Console.WriteLine(dictClass[strObject]);
         }
 
+        private static Dictionary<string, string> WMIC(string strObject) {
+            string[] properties = dict[strObject];
+            Dictionary<string, string> wmicDict = new();
+            mc.Path = new ManagementPath(strObject);
+            mc.Options.UseAmendedQualifiers = false;
+            ManagementObjectCollection moc = mc.GetInstances();
+
+            for (int i = 0; i < properties.Length; i++) {
+                if (properties.Contains("Capacity")) {
+                    double intResult = 0;
+                    foreach (ManagementObject mo in moc) {
+                        var result = mo.Properties[properties[i]].Value.ToString();
+                        #pragma warning disable CS8604 // 引用类型参数可能为 null。
+                        intResult += double.Parse(result);
+                        #pragma warning restore CS8604 // 引用类型参数可能为 null。
+                    }
+                    wmicDict.Add(properties[i], intResult.ToString());
+                } else {
+                    var strResult = "";
+                    foreach (ManagementObject mo in moc) {
+                        strResult += mo.Properties[properties[i]].Value.ToString();
+                    }
+                    wmicDict.Add(properties[i], strResult);
+                }
+            }
+
+            return wmicDict;
+        }
+
         private static string WMIC(string strClass, string strObject) {
             mc.Path = new ManagementPath(strClass);
             mc.Options.UseAmendedQualifiers = true;
             ManagementObjectCollection moc = mc.GetInstances();
             var strResult = "";
-            int intCount = 1;
             if (moc.Count > 1) {
                 foreach (ManagementObject mo in moc) {
-                    if (intCount == 1) {
-                        strResult += mo.Properties[strObject].Value.ToString();
-                    } else {
-                        strResult += " · " + mo.Properties[strObject].Value.ToString();
-                    }
-                    intCount++;
+                    strResult += mo.Properties[strObject].Value.ToString();
                 }
             } else {
                 foreach (ManagementObject mo in moc) {
