@@ -33,7 +33,6 @@ namespace RainyFetch {
         static void Main() {
             Console.WriteLine();
             PrintLogo();
-
             var dictCS = WMIC("Win32_ComputerSystem");
             string strUser = dictCS["UserName"][(dictCS["UserName"].IndexOf("\\") + 1)..].Trim();
             string strSystem = dictCS["Name"];
@@ -53,10 +52,7 @@ namespace RainyFetch {
             Query("O S", dictOS, "Caption");
 
             PrintLogo();
-            Query(dictOS, "Version");
-
-            PrintLogo();
-            Query(dictOS, "OSArchitecture");
+            Console.WriteLine("     " + dictOS["Version"] + " · " + dictOS["OSArchitecture"]);
 
             PrintLogo();
             Query("CPU", "Win32_Processor", "Name");
@@ -88,7 +84,7 @@ namespace RainyFetch {
             string[] properties = dict[strObject];
             Dictionary<string, string> wmicDict = new();
             mc.Path = new ManagementPath(strObject);
-            mc.Options.UseAmendedQualifiers = true;
+            mc.Options.UseAmendedQualifiers = false;
             ManagementObjectCollection moc = mc.GetInstances();
 
             for (int i = 0; i < properties.Length; i++) {
@@ -143,10 +139,9 @@ namespace RainyFetch {
             if (moc.Count > 1) {
                 foreach (ManagementObject mo in moc) {
                     if (intCount == 1) {
-                        strResult += intCount + ". " + mo.Properties[strObject].Value.ToString();
+                        strResult += mo.Properties[strObject].Value.ToString();
                     } else {
-                        strResult += "\n" + logo[intLineNum] + "        " + intCount + ". " + mo.Properties[strObject].Value.ToString();
-                        intLineNum++;
+                        strResult += " · " + mo.Properties[strObject].Value.ToString();
                     }
                     intCount++;
                 }
