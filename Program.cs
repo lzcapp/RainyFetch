@@ -22,7 +22,6 @@ namespace RainyFetch {
             @"                         ````''*::cll",
             @"                                   ``"
         };
-
         private static readonly ManagementClass mc = new();
         private static int intLineNum = 0;
         private static readonly Dictionary<string, string[]> dict = new() {
@@ -30,88 +29,93 @@ namespace RainyFetch {
             { "Win32_OperatingSystem", new string[] { "Caption", "Version", "OSArchitecture" } },
             { "Win32_PhysicalMemory", new string[] { "Capacity" } }
         };
+        private static readonly List<string[]> result = new();
 
         static void Main() {
-            Console.WriteLine();
-            PrintLogo();
+            var count = 0;
+            var tab = "";
+
+            result.Add(new[] { "\n", "" });
             var dictCS = WMIC("Win32_ComputerSystem");
             string strUser = dictCS["UserName"][(dictCS["UserName"].IndexOf("\\") + 1)..].Trim();
             string strSystem = dictCS["Name"];
-            Write(strUser, ConsoleColor.Red);
-            Write("@");
-            Write(strSystem, ConsoleColor.Red);
-            Console.WriteLine();
 
-            PrintLogo();
+            result.Add(new[] { strUser, "red" });
+            result.Add(new[] { "@", "white" });
+            result.Add(new[] { strSystem, "red" });
+            result.Add(new[] { "\n", "" });
+
+            var hr = "";
             for (int len = 0; len < strUser.Length + strSystem.Length + 1; len++) {
-                Console.Write("-");
+                hr += "-";
             }
-            Console.WriteLine();
+            result.Add(new[] { hr, "white" });
+            result.Add(new[] { "\n", "" });
 
-            PrintLogo();
             var dictOS = WMIC("Win32_OperatingSystem");
-            Query("O S", dictOS, "Caption");
+            result.Add(new[] { "O S: ", "red" });
+            result.Add(new[] { dictOS["Caption"], "white" });
+            result.Add(new[] { "\n", "" });
+            result.Add(new[] { "     " + dictOS["Version"] + " · " + dictOS["OSArchitecture"], "white" });
+            result.Add(new[] { "\n", "" });
 
-            PrintLogo();
-            Console.WriteLine("     " + dictOS["Version"] + " · " + dictOS["OSArchitecture"]);
+            result.Add(new[] { "CPU: ", "red" });
+            var cpus = WMIC("Win32_Processor", "Name");
+            count = 0;
+            tab = "";
+            foreach (var cpu in cpus) {
+                if (count > 0) {
+                    tab = "     ";
+                }
+                result.Add(new[] { tab + cpu, "white" });
+                result.Add(new[] { "\n", "" });
+                count++;
+            }
 
-            PrintLogo();
-            Query("CPU", "Win32_Processor", "Name");
+            result.Add(new[] { "GPU: ", "red" });
+            var gpus = WMIC("Win32_VideoController", "Name");
+            count = 0;
+            tab = "";
+            foreach (var gpu in gpus) {
+                if (count > 0) {
+                    tab = "     ";
+                }
+                result.Add(new[] { tab + gpu, "white" });
+                result.Add(new[] { "\n", "" });
+                count++;
+            }
 
-            PrintLogo();
-            Query("GPU", "Win32_VideoController", "Name");
-
-            PrintLogo();
             var dictMEM = WMIC("Win32_PhysicalMemory");
             dictMEM["Capacity"] = (double.Parse(dictMEM["Capacity"]) / 1024 / 1024 / 1024).ToString() + "GB";
-            Query("MEM", dictMEM, "Capacity");
+            result.Add(new[] { "MEM: ", "red" });
+            result.Add(new[] { dictMEM["Capacity"], "white" });
+            result.Add(new[] { "\n", "" });
 
-            PrintLogo();
-            Console.WriteLine();
-
-            PrintLogo();
+            result.Add(new[] { "\n", "" });
             ColorBlock();
-            Console.WriteLine();
 
-            int intTemp = logo.Length - intLineNum;
-            for (int intLine = 0; intLine < intTemp; intLine++) {
-                PrintLogo();
-                Console.WriteLine();
+            foreach (var line in result) {
+                if (line[0] == "\n") {
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write(logo[intLineNum++] + "   ");
+                    Console.ResetColor();
+                } else {
+                    Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), UpperFirstLetter(line[1]));
+                    Console.Write(line[0]);
+                    Console.ResetColor();
+                }
             }
+
             Console.WriteLine();
+            while (intLineNum < logo.Length) {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(logo[intLineNum++] + "   ");
+                Console.ResetColor();
+            }
+
             Console.Write("  Press any key to exit...");
             Console.ReadKey();
-        }
-
-        private static void Query(string strClass, string strObject) {
-            Query("", strClass, strObject);
-        }
-
-        private static void Query(string strName, string strClass, string strObject) {
-            string strResult = WMIC(strClass, strObject);
-            Console.ForegroundColor = ConsoleColor.Red;
-            if (string.IsNullOrEmpty(strName)) {
-                Console.Write("     ");
-            } else {
-                Console.Write(strName + ": ");
-            }
-            Console.ResetColor();
-            Console.WriteLine(strResult);
-        }
-
-        private static void Query(Dictionary<string, string> dictClass, string strObject) {
-            Query("", dictClass, strObject);
-        }
-
-        private static void Query(string strName, Dictionary<string, string> dictClass, string strObject) {
-            Console.ForegroundColor = ConsoleColor.Red;
-            if (string.IsNullOrEmpty(strName)) {
-                Console.Write("     ");
-            } else {
-                Console.Write(strName + ": ");
-            }
-            Console.ResetColor();
-            Console.WriteLine(dictClass[strObject]);
         }
 
         private static Dictionary<string, string> WMIC(string strObject) {
@@ -143,49 +147,34 @@ namespace RainyFetch {
             return wmicDict;
         }
 
-        private static string WMIC(string strClass, string strObject) {
+        private static List<string> WMIC(string strClass, string strObject) {
             mc.Path = new ManagementPath(strClass);
             mc.Options.UseAmendedQualifiers = true;
             ManagementObjectCollection moc = mc.GetInstances();
-            var strResult = "";
-            if (moc.Count > 1) {
+            List<string> result = new();
+            if (moc.Count >= 1) {
                 foreach (ManagementObject mo in moc) {
-                    strResult += mo.Properties[strObject].Value.ToString();
-                }
-            } else {
-                foreach (ManagementObject mo in moc) {
-                    strResult += mo.Properties[strObject].Value.ToString();
+                    var query = mo.Properties[strObject].Value.ToString();
+                    if (!string.IsNullOrEmpty(query)) {
+                        result.Add(query);
+                    }
                 }
             }
-            return strResult;
-        }
-
-        private static void PrintLogo() {
-            Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write(logo[intLineNum] + "   ");
-            Console.ResetColor();
-            intLineNum++;
-        }
-
-        private static void Write(string str) {
-            Console.ResetColor();
-            Console.Write(str);
-            Console.ResetColor();
-        }
-
-        private static void Write(string str, ConsoleColor color) {
-            Console.ForegroundColor = color;
-            Console.Write(str);
-            Console.ResetColor();
+            return result;
         }
 
         private static void ColorBlock() {
             ConsoleColor[] colors = (ConsoleColor[])Enum.GetValues(typeof(ConsoleColor));
             foreach (var color in colors) {
-                Console.ForegroundColor = color;
-                Console.Write("██");
-                Console.ResetColor();
+                result.Add(new[] { "██", color.ToString() });
             }
+        }
+
+        public static string UpperFirstLetter(string s) {
+            if (string.IsNullOrEmpty(s)) {
+                return string.Empty;
+            }
+            return char.ToUpper(s[0]) + s[1..];
         }
     }
 }
