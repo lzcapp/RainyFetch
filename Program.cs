@@ -64,7 +64,7 @@ namespace RainyFetch {
             PrintLogo();
             var dictMEM = WMIC("Win32_PhysicalMemory");
             dictMEM["Capacity"] = (double.Parse(dictMEM["Capacity"]) / 1024 / 1024 / 1024).ToString() + "GB";
-            Query("O S", dictMEM, "Capacity");
+            Query("MEM", dictMEM, "Capacity");
 
             PrintLogo();
             Console.WriteLine();
@@ -126,9 +126,9 @@ namespace RainyFetch {
                     double intResult = 0;
                     foreach (ManagementObject mo in moc) {
                         var result = mo.Properties[properties[i]].Value.ToString();
-                        #pragma warning disable CS8604 // 引用类型参数可能为 null。
-                        intResult += double.Parse(result);
-                        #pragma warning restore CS8604 // 引用类型参数可能为 null。
+                        if (!string.IsNullOrEmpty(result)) {
+                            intResult += double.Parse(result);
+                        }
                     }
                     wmicDict.Add(properties[i], intResult.ToString());
                 } else {
