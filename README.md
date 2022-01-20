@@ -1,6 +1,6 @@
 # RainyFetch
 
-![Screenshot](https://user-images.githubusercontent.com/12462465/150372205-522d5a0c-9fe5-477b-8c09-bfa6fe4195e4.png)
+![Screenshot](https://user-images.githubusercontent.com/12462465/150375325-a87c8688-93ac-4144-aac0-446e077c49f2.png)
 
 ## Prerequisites
 
