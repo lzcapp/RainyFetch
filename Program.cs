@@ -327,15 +327,16 @@ namespace RainyFetch {
             if (s == "9223372036854775807") {
                 return "N/A";
             }
-            var d = double.Parse(s);
-            if (string.IsNullOrEmpty(s)) {
+            try {
+                var d = double.Parse(s);
+                while (d > 1000) {
+                    d /= (double)1000;
+                    unitIndex++;
+                }
+                return Math.Round(d, 2).ToString() + " " + unit[unitIndex];
+            } catch (Exception) {
                 return string.Empty;
             }
-            while (d > 1024) {
-                d /= (double)1024;
-                unitIndex++;
-            }
-            return Math.Round(d, 2).ToString() + " " + unit[unitIndex];
         }
 
         public static string UpperFirstLetter(string s) {
