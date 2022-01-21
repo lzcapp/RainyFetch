@@ -64,13 +64,19 @@ namespace RainyFetch {
             var dictBB = WMIC("Win32_BaseBoard");
             result.Add(new[] { "M B: ", "red" });
             result.Add(new[] { dictBB[0]["Manufacturer"], "white" });
-            result.Add(new[] { " · ", "red" });
-            result.Add(new[] { dictBB[0]["Product"], "white" });
-            result.Add(new[] { " · ", "red" });
-            result.Add(new[] { dictBB[0]["Version"], "white" });
+            if (dictBB[0]["Product"] != "None") {
+                result.Add(new[] { " · ", "red" });
+                result.Add(new[] { dictBB[0]["Product"], "white" });
+            }
+            if (dictBB[0]["Version"] != "None") {
+                result.Add(new[] { " · ", "red" });
+                result.Add(new[] { dictBB[0]["Version"], "white" });
+            }
             result.Add(new[] { "\n", string.Empty });
-            result.Add(new[] { space + dictBB[0]["SerialNumber"], "white" });
-            result.Add(new[] { "\n", string.Empty });
+            if (dictBB[0]["SerialNumber"] != "None") {
+                result.Add(new[] { space + dictBB[0]["SerialNumber"], "white" });
+                result.Add(new[] { "\n", string.Empty });
+            }
 
             var dictOS = WMIC("Win32_OperatingSystem");
             result.Add(new[] { "O S: ", "red" });
@@ -138,20 +144,31 @@ namespace RainyFetch {
                 }
                 result.Add(new[] { tab + order, "red" });
                 result.Add(new[] { CapcityCovertion(mem["Capacity"]), "white" });
-                result.Add(new[] { " · ", "red" });
-                result.Add(new[] { mem["ConfiguredClockSpeed"] + " MHZ", "white" });
-                result.Add(new[] { " · ", "red" });
-                result.Add(new[] { mem["Manufacturer"], "white" });
+                if (!string.IsNullOrEmpty(mem["ConfiguredClockSpeed"])) {
+                    result.Add(new[] { " · ", "red" });
+                    result.Add(new[] { mem["ConfiguredClockSpeed"] + " MHZ", "white" });
+                }
+                if (!string.IsNullOrEmpty(mem["Manufacturer"])) {
+                    result.Add(new[] { " · ", "red" });
+                    result.Add(new[] { mem["Manufacturer"], "white" });
+                }
                 result.Add(new[] { "\n", string.Empty });
                 count++;
             }
 
             result.Add(new[] { "DSK: ", "red" });
             var dsks = WMIC("Win32_DiskDrive");
+            var dskOn = new List<Dictionary<string, string>>();
             count = 1;
             tab = string.Empty;
             foreach (var dsk in dsks) {
-                if (dsks.Count > 1) {
+                string size = CapcityCovertion(dsk["Size"]);
+                if (!string.IsNullOrEmpty(size)) {
+                    dskOn.Add(dsk);
+                }
+            }
+            foreach (var dsk in dskOn) {
+                if (dskOn.Count > 1) {
                     order = count.ToString() + ". ";
                 } else {
                     order = "";
@@ -176,7 +193,7 @@ namespace RainyFetch {
             tab = string.Empty;
             foreach (var net in nets) {
                 if (Convert.ToBoolean(net["PhysicalAdapter"])) {
-                    netOn.Add(net);    
+                    netOn.Add(net);
                 }
             }
             foreach (var net in netOn) {
@@ -203,8 +220,8 @@ namespace RainyFetch {
                 if (line[0] == "\n") {
                     Console.WriteLine();
                     Console.ForegroundColor = ConsoleColor.Blue;
-                    if (intLineNum < logo.Length) {
-                        Console.Write(logo[intLineNum++] + "    ");
+                    if (++intLineNum < logo.Length) {
+                        Console.Write(logo[intLineNum] + "    ");
                     } else {
                         Console.Write("                                         ");
                     }
@@ -223,6 +240,8 @@ namespace RainyFetch {
                 Console.WriteLine(logo[intLineNum++]);
             }
             Console.ResetColor();
+
+            Console.ReadKey();
         }
 
         private static List<Dictionary<string, string>> WMIC(string strObject) {
@@ -268,7 +287,7 @@ namespace RainyFetch {
         }
 
         private static Dictionary<string, string> WMI(string name) {
-            Dictionary<string, string> result = new Dictionary<string, string> {
+            Dictionary<string, string> result = new() {
                 { "LinkSpeed", "" }
             };
             SelectQuery selectQuery = new("SELECT * FROM MSNdis_LinkSpeed WHERE active=true");
