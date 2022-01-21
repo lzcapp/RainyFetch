@@ -203,7 +203,11 @@ namespace RainyFetch {
                 if (line[0] == "\n") {
                     Console.WriteLine();
                     Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write(logo[intLineNum++] + "    ");
+                    if (intLineNum < logo.Length) {
+                        Console.Write(logo[intLineNum++] + "    ");
+                    } else {
+                        Console.Write("                                         ");
+                    }
                     Console.ResetColor();
                 } else {
                     Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), UpperFirstLetter(line[1]));
@@ -310,15 +314,19 @@ namespace RainyFetch {
         public static string CapcityCovertion(string s) {
             var unit = new[] { "B", "KB", "MB", "GB", "TB", "PB" };
             var unitIndex = 0;
-            var d = double.Parse(s);
-            if (string.IsNullOrEmpty(s)) {
+            try {
+                var d = double.Parse(s);
+                if (string.IsNullOrEmpty(s)) {
+                    return string.Empty;
+                }
+                while (d >= 1024) {
+                    d /= (double)1024;
+                    unitIndex++;
+                }
+                return Math.Round(d, 2).ToString() + " " + unit[unitIndex];
+            } catch (Exception) {
                 return string.Empty;
             }
-            while (d > 1024) {
-                d /= (double)1024;
-                unitIndex++;
-            }
-            return Math.Round(d, 2).ToString() + " " + unit[unitIndex];
         }
 
         public static string SpeedCovertion(string s) {
@@ -329,7 +337,7 @@ namespace RainyFetch {
             }
             try {
                 var d = double.Parse(s);
-                while (d > 1000) {
+                while (d >= 1000) {
                     d /= (double)1000;
                     unitIndex++;
                 }
