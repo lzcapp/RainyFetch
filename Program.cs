@@ -104,7 +104,7 @@ internal static class Program {
             if (cpus.Count > 1)
                 order = count + ". ";
             else
-                order = "";
+                order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
             Result.Add(new[] {cpu, "white"});
@@ -120,7 +120,7 @@ internal static class Program {
             if (gpus.Count > 1)
                 order = count + ". ";
             else
-                order = "";
+                order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
             Result.Add(new[] {gpu, "white"});
@@ -136,13 +136,16 @@ internal static class Program {
             if (mems.Count > 1)
                 order = count + ". ";
             else
-                order = "";
+                order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
-            Result.Add(new[] {CapcityCovertion(mem["Capacity"]), "white"});
+            var capacity = CapcityCovertion(mem["Capacity"]);
+            Result.Add(new[] {capacity[0], "white"});
+            Result.Add(new[] {" " + capacity[1], "red"});
             if (!string.IsNullOrEmpty(mem["ConfiguredClockSpeed"])) {
                 Result.Add(new[] {" · ", "red"});
-                Result.Add(new[] {mem["ConfiguredClockSpeed"] + " MHZ", "white"});
+                Result.Add(new[] {mem["ConfiguredClockSpeed"], "white"});
+                Result.Add(new[] {" MHZ", "red"});
             }
 
             if (!string.IsNullOrEmpty(mem["Manufacturer"])) {
@@ -158,16 +161,18 @@ internal static class Program {
         var dsks = Wmic("Win32_DiskDrive");
         count = 1;
         tab = string.Empty;
-        var dskOn = (from dsk in dsks let size = CapcityCovertion(dsk["Size"]) where !string.IsNullOrEmpty(size) select dsk).ToList();
+        var dskOn = (from dsk in dsks let size = CapcityCovertion(dsk["Size"]) where !string.IsNullOrEmpty(size[0]) select dsk).ToList();
 
         foreach (var dsk in dskOn) {
             if (dskOn.Count > 1)
                 order = count + ". ";
             else
-                order = "";
+                order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
-            Result.Add(new[] {CapcityCovertion(dsk["Size"]), "white"});
+            var capacity = CapcityCovertion(dsk["Size"]);
+            Result.Add(new[] {capacity[0], "white"});
+            Result.Add(new[] {" " + capacity[1], "red"});
             if (!string.IsNullOrEmpty(dsk["Caption"])) {
                 Result.Add(new[] {" · ", "red"});
                 Result.Add(new[] {dsk["Caption"], "white"});
@@ -186,12 +191,14 @@ internal static class Program {
             if (netOn.Count > 1)
                 order = count + ". ";
             else
-                order = "";
+                order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
             Result.Add(new[] {net["Name"], "white"});
             Result.Add(new[] {" · ", "red"});
-            Result.Add(new[] {SpeedCovertion(Wmi(net["Name"])["LinkSpeed"]), "white"});
+            var speed = SpeedCovertion(Wmi(net["Name"])["LinkSpeed"]);
+            Result.Add(new[] {speed[0], "white"});
+            Result.Add(new[] {" " + speed[1], "red"});
             Result.Add(new[] {"\n", string.Empty});
             count++;
         }
@@ -235,7 +242,7 @@ internal static class Program {
             var mo = (ManagementObject) o;
             Dictionary<string, string> result = new();
             foreach (var property in properties) {
-                result.Add(property, "");
+                result.Add(property, string.Empty);
                 try {
                     var query = mo.Properties[property].Value.ToString();
                     if (!string.IsNullOrEmpty(query)) result[property] = query;
@@ -272,7 +279,7 @@ internal static class Program {
 
     private static Dictionary<string, string> Wmi(string name) {
         Dictionary<string, string> result = new() {
-            {"LinkSpeed", ""}
+            {"LinkSpeed", string.Empty}
         };
         SelectQuery selectQuery = new("SELECT * FROM MSNdis_LinkSpeed WHERE active=true");
         ManagementScope scope = new("root\\wmi");
@@ -315,28 +322,28 @@ internal static class Program {
         Result.Add(new[] {" S ", "red"});
     }
 
-    private static string CapcityCovertion(string s) {
+    private static List<string> CapcityCovertion(string s) {
         var unit = new[] {"B", "KB", "MB", "GB", "TB", "PB"};
         var unitIndex = 0;
         try {
             var d = double.Parse(s);
-            if (string.IsNullOrEmpty(s)) return string.Empty;
+            if (string.IsNullOrEmpty(s)) return new List<string> {string.Empty, string.Empty};
             while (d >= 1024) {
                 d /= 1024;
                 unitIndex++;
             }
 
-            return Math.Round(d, 2).ToString(CultureInfo.CurrentCulture) + " " + unit[unitIndex];
+            return new List<string> {Math.Round(d, 2).ToString(CultureInfo.CurrentCulture), unit[unitIndex]};
         }
         catch (Exception) {
-            return string.Empty;
+            return new List<string> {string.Empty, string.Empty};
         }
     }
 
-    private static string SpeedCovertion(string s) {
+    private static List<string> SpeedCovertion(string s) {
         var unit = new[] {"KB/s", "MB/s", "GB/s", "TB/s", "PB/s"};
         var unitIndex = 0;
-        if (s == "9223372036854775807") return "N/A";
+        if (s == "9223372036854775807") return new List<string> {string.Empty, string.Empty};
         try {
             var d = double.Parse(s);
             while (d >= 1000) {
@@ -344,10 +351,10 @@ internal static class Program {
                 unitIndex++;
             }
 
-            return Math.Round(d, 2).ToString(CultureInfo.CurrentCulture) + " " + unit[unitIndex];
+            return new List<string> {Math.Round(d, 2).ToString(CultureInfo.CurrentCulture), unit[unitIndex]};
         }
         catch (Exception) {
-            return string.Empty;
+            return new List<string> {string.Empty, string.Empty};
         }
     }
 
