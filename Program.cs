@@ -156,13 +156,9 @@ internal static class Program {
 
         Result.Add(new[] {"DSK: ", "red"});
         var dsks = Wmic("Win32_DiskDrive");
-        var dskOn = new List<Dictionary<string, string>>();
         count = 1;
         tab = string.Empty;
-        foreach (var dsk in dsks) {
-            var size = CapcityCovertion(dsk["Size"]);
-            if (!string.IsNullOrEmpty(size)) dskOn.Add(dsk);
-        }
+        var dskOn = (from dsk in dsks let size = CapcityCovertion(dsk["Size"]) where !string.IsNullOrEmpty(size) select dsk).ToList();
 
         foreach (var dsk in dskOn) {
             if (dskOn.Count > 1)
@@ -183,12 +179,9 @@ internal static class Program {
 
         Result.Add(new[] {"NIC: ", "red"});
         var nets = Wmic("Win32_NetworkAdapter");
-        var netOn = new List<Dictionary<string, string>>();
         count = 1;
         tab = string.Empty;
-        foreach (var net in nets)
-            if (Convert.ToBoolean(net["PhysicalAdapter"]))
-                netOn.Add(net);
+        var netOn = nets.Where(net => Convert.ToBoolean(net["PhysicalAdapter"])).ToList();
         foreach (var net in netOn) {
             if (netOn.Count > 1)
                 order = count + ". ";
