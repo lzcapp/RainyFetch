@@ -1,10 +1,10 @@
 # RainyFetch
 
-![Screenshot](https://user-images.githubusercontent.com/12462465/150570933-c0c8c61f-8c0a-4853-b94f-58fa5d129b80.png)
+![Screenshot](https://user-images.githubusercontent.com/12462465/150627130-9b01d66f-84dc-4c48-be65-cd4729c9a8f1.png)
 
 ## Changelog
 
-- **Full Changelog**: https://github.com/RainySummerLuo/RainyFetch/compare/1.1.0...2.1.1
+- **Full Changelog**: https://github.com/RainySummerLuo/RainyFetch/compare/1.1.0...2.1.2
 
 ## Prerequisites
 
