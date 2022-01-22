@@ -11,3 +11,5 @@
 - .NET Core 3.1 Runtime
 
   <https://aka.ms/dotnet-core-applaunch?framework=Microsoft.NETCore.App&framework_version=3.1.0>
+  
+  If you have the Runtime installed, just download the smaller executables without "_runtime", otherwise you need to download the "_runtime" ones.
