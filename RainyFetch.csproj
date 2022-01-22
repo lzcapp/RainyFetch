@@ -1,55 +1,57 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	  <LangVersion>10</LangVersion>
-	  <ApplicationIcon>logo.ico</ApplicationIcon>
-	  <StartupObject>RainyFetch.Program</StartupObject>
-	  <DebugType>none</DebugType>
-	  <SignAssembly>False</SignAssembly>
-	  <Version>2.1.1</Version>
-	  <Authors>RainySummer</Authors>
-	  <PackageProjectUrl>https://github.com/RainySummerLuo/RainyFetch/</PackageProjectUrl>
-	  <PackageIcon>logo.png</PackageIcon>
-	  <PackageReadmeFile>README.md</PackageReadmeFile>
-	  <Copyright>© RainySummer</Copyright>
-	  <RepositoryType>git</RepositoryType>
-	  <RepositoryUrl>https://github.com/RainySummerLuo/RainyFetch/</RepositoryUrl>
-	  <PackageLicenseFile>C:\Codes\RainyFetch\LICENSE</PackageLicenseFile>
-	  <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-	  <EnableNETAnalyzers>True</EnableNETAnalyzers>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<PublishSingleFile>true</PublishSingleFile>
+		<!--<PublishTrimmed>true</PublishTrimmed>-->
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10</LangVersion>
+		<ApplicationIcon>logo.ico</ApplicationIcon>
+		<StartupObject>RainyFetch.Program</StartupObject>
+		<DebugType>none</DebugType>
+		<SignAssembly>False</SignAssembly>
+		<Version>2.1.2</Version>
+		<Authors>RainySummer</Authors>
+		<PackageProjectUrl>https://github.com/RainySummerLuo/RainyFetch/</PackageProjectUrl>
+		<PackageIcon>logo.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Copyright>© RainySummer</Copyright>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/RainySummerLuo/RainyFetch/</RepositoryUrl>
+		<PackageLicenseFile>C:\Codes\RainyFetch\LICENSE</PackageLicenseFile>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <FileAlignment>1024</FileAlignment>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<FileAlignment>1024</FileAlignment>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <FileAlignment>1024</FileAlignment>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+		<FileAlignment>1024</FileAlignment>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="logo.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="logo.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Management" Version="6.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="System.Management" Version="6.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="logo.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
