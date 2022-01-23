@@ -5,7 +5,6 @@ namespace RainyFetch;
 
 internal static class Program {
     private const string Space = "     ";
-
     private static readonly string[] Logo = {
         @"                                  ..,",
         @"                      ....,,:;+ccllll",
@@ -27,15 +26,29 @@ internal static class Program {
         @"                         ````''*::cll",
         @"                                   ``"
     };
-
+    private static readonly string[] Architecture = {
+        "x86",
+        "MIPS",
+        "Alpha",
+        "PowerPC",
+        "",
+        "ARM",
+        "ia64",
+        // Itanium-based systems
+        "",
+        "",
+        "x64",
+    };
     private static readonly ManagementClass Mc = new();
     private static int _lineNum;
 
     private static readonly Dictionary<string, string[]> Dict = new() {
         {"Win32_ComputerSystem", new[] {"UserName", "Name", "Manufacturer", "SystemFamily"}},
-        {"Win32_OperatingSystem", new[] {"Caption", "Version", "OSArchitecture", "LastBootUpTime", "LocalDateTime"}},
+        {"Win32_OperatingSystem", new[] {"Caption", "Version", "OSArchitecture", "LastBootUpTime", "LocalDateTime", "RegisteredUser" } },
+        {"Win32_Processor", new[] {"Name", "CurrentClockSpeed", "MaxClockSpeed", "NumberOfCores", "NumberOfEnabledCore", "NumberOfLogicalProcessors", "ThreadCount", "L2CacheSize", "L3CacheSize", "Architecture" } },
+        {"Win32_VideoController", new[] {"Name", "AdapterRAM", "AdapterDACType"}},
         {"Win32_BaseBoard", new[] {"Manufacturer", "Product", "SerialNumber", "Version"}},
-        {"Win32_PhysicalMemory", new[] {"Capacity", "ConfiguredClockSpeed", "Manufacturer"}},
+        {"Win32_PhysicalMemory", new[] {"Capacity", "ConfiguredClockSpeed", "Manufacturer", "DeviceLocator" } },
         {"Win32_DiskDrive", new[] {"Size", "Caption"}},
         {"Win32_NetworkAdapter", new[] {"PhysicalAdapter", "Name", "Speed"}}
     };
@@ -68,7 +81,7 @@ internal static class Program {
         Result.Add(new[] {"M B: ", "red"});
         Result.Add(new[] {dictBb[0]["Manufacturer"], "white"});
         if (dictBb[0]["Product"] != "None") {
-            Result.Add(new[] {" · ", "red"});
+            Result.Add(new[] {" ", "red"});
             Result.Add(new[] {dictBb[0]["Product"], "white"});
         }
 
@@ -79,17 +92,19 @@ internal static class Program {
 
         Result.Add(new[] {"\n", string.Empty});
         if (dictBb[0]["SerialNumber"] != "None") {
-            Result.Add(new[] {Space + dictBb[0]["SerialNumber"], "white"});
+            Result.Add(new []{ Space + "SN: ", "red"});
+            Result.Add(new[] {dictBb[0]["SerialNumber"], "white"});
             Result.Add(new[] {"\n", string.Empty});
         }
 
         var dictOs = Wmic("Win32_OperatingSystem");
         Result.Add(new[] {"O S: ", "red"});
         Result.Add(new[] {dictOs[0]["Caption"], "white"});
+        Result.Add(new[] { " · ", "red" });
+        Result.Add(new[] { dictOs[0]["Version"], "white" });
         Result.Add(new[] {"\n", string.Empty});
-        Result.Add(new[] {Space + dictOs[0]["Version"], "white"});
-        Result.Add(new[] {" · ", "red"});
-        Result.Add(new[] {dictOs[0]["OSArchitecture"], "white"});
+        Result.Add(new[] { Space + "Registered to ", "red"});
+        Result.Add(new[] { dictOs[0]["RegisteredUser"], "white" });
         Result.Add(new[] {"\n", string.Empty});
 
         Result.Add(new[] {"U P: ", "red"});
@@ -97,9 +112,11 @@ internal static class Program {
         Result.Add(new[] {"\n", string.Empty});
 
         Result.Add(new[] {"CPU: ", "red"});
-        var cpus = Wmic("Win32_Processor", "Name");
+        var cpus = Wmic("Win32_Processor");
         var count = 1;
         var tab = string.Empty;
+        var strCore = "cores";
+        var strThread = "threads";
         foreach (var cpu in cpus) {
             if (cpus.Count > 1)
                 order = count + ". ";
@@ -107,13 +124,51 @@ internal static class Program {
                 order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
-            Result.Add(new[] {cpu, "white"});
+            Result.Add(new[] {cpu["Name"], "white"});
             Result.Add(new[] {"\n", string.Empty});
+            Result.Add(new[] {Space + cpu["CurrentClockSpeed"], "white"});
+            Result.Add(new[] {" MHz", "red"});
+            Result.Add(new[] {" · ", "red"});
+            Result.Add(new[] {"Max ", "red"});
+            Result.Add(new[] {cpu["MaxClockSpeed"], "white"});
+            Result.Add(new[] {" MHz", "red"});
+            if (cpu["NumberOfEnabledCore"] == "1") strCore = "core";
+            if (cpu["NumberOfCores"] == cpu["NumberOfEnabledCore"]) {
+                Result.Add(new[] {" · " + cpu["NumberOfCores"], "white"});
+                Result.Add(new[] {" " + strCore + " ", "red"});
+            }
+            else {
+                Result.Add(new[] {Space + cpu["NumberOfCores"], "white"});
+                Result.Add(new[] {"/", "red"});
+                Result.Add(new[] {cpu["NumberOfEnabledCore"], "white"});
+                Result.Add(new[] {" " + strCore + " ", "red"});
+            }
+            if (cpu["ThreadCount"] == "1") strThread = "thread";
+            if (cpu["NumberOfLogicalProcessors"] == cpu["ThreadCount"]) {
+                Result.Add(new[] {cpu["ThreadCount"], "white"});
+                Result.Add(new[] {" " + strThread + " ", "red"});
+            }
+            else {
+                Result.Add(new[] {cpu["NumberOfLogicalProcessors"], "white"});
+                Result.Add(new[] {"/", "red"});
+                Result.Add(new[] {cpu["ThreadCount"], "white"});
+                Result.Add(new[] {" " + strThread + " ", "red"});
+            }
+            Result.Add(new[] {"\n", string.Empty});
+            Result.Add(new [] { Space + "Architecture: ", "red"});
+            Result.Add(new[] { Architecture[int.Parse(cpu["Architecture"])], "white" });
+            Result.Add(new[] { " · L2: ", "red" });
+            Result.Add(new[] {CapcityCovertion(cpu["L2CacheSize"])[0], "white" });
+            Result.Add(new[] { " " + CapcityCovertion(cpu["L2CacheSize"], 1)[1], "red" });
+            Result.Add(new[] { " · L3: ", "red" });
+            Result.Add(new[] { CapcityCovertion(cpu["L3CacheSize"])[0], "white" });
+            Result.Add(new[] { " " + CapcityCovertion(cpu["L3CacheSize"], 1)[1], "red" });
+            Result.Add(new[] { "\n", string.Empty });
             count++;
         }
 
         Result.Add(new[] {"GPU: ", "red"});
-        var gpus = Wmic("Win32_VideoController", "Name");
+        var gpus = Wmic("Win32_VideoController");
         count = 1;
         tab = string.Empty;
         foreach (var gpu in gpus) {
@@ -123,7 +178,13 @@ internal static class Program {
                 order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
-            Result.Add(new[] {gpu, "white"});
+            Result.Add(new[] {gpu["Name"], "white"});
+            Result.Add(new[] {"\n", string.Empty});
+            Result.Add(new[] {Space + "   ", "red"});
+            Result.Add(new[] {CapcityCovertion(gpu["AdapterRAM"])[0], "white"});
+            Result.Add(new[] {" " + CapcityCovertion(gpu["AdapterRAM"])[1], "red"});
+            Result.Add(new[] {" · ", "red"});
+            Result.Add(new[] {gpu["AdapterDACType"], "white"});
             Result.Add(new[] {"\n", string.Empty});
             count++;
         }
@@ -139,6 +200,8 @@ internal static class Program {
                 order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
+            Result.Add(new[] { mem["DeviceLocator"], "white" });
+            Result.Add(new[] { " · ", "red" });
             var capacity = CapcityCovertion(mem["Capacity"]);
             Result.Add(new[] {capacity[0], "white"});
             Result.Add(new[] {" " + capacity[1], "red"});
@@ -170,14 +233,13 @@ internal static class Program {
                 order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
+            if (!string.IsNullOrEmpty(dsk["Caption"])) {
+                Result.Add(new[] { dsk["Caption"], "white" });
+                Result.Add(new[] { " · ", "red" });
+            }
             var capacity = CapcityCovertion(dsk["Size"]);
             Result.Add(new[] {capacity[0], "white"});
             Result.Add(new[] {" " + capacity[1], "red"});
-            if (!string.IsNullOrEmpty(dsk["Caption"])) {
-                Result.Add(new[] {" · ", "red"});
-                Result.Add(new[] {dsk["Caption"], "white"});
-            }
-
             Result.Add(new[] {"\n", string.Empty});
             count++;
         }
@@ -258,25 +320,6 @@ internal static class Program {
         return results;
     }
 
-    private static List<string> Wmic(string strClass, string strObject) {
-        Mc.Path = new ManagementPath(strClass);
-        Mc.Options.UseAmendedQualifiers = true;
-        var moc = Mc.GetInstances();
-        List<string> result = new();
-        foreach (var o in moc) {
-            var mo = (ManagementObject) o;
-            try {
-                var query = mo.Properties[strObject].Value.ToString();
-                if (!string.IsNullOrEmpty(query)) result.Add(query);
-            }
-            catch (Exception) {
-                // ignored
-            }
-        }
-
-        return result;
-    }
-
     private static Dictionary<string, string> Wmi(string name) {
         Dictionary<string, string> result = new() {
             {"LinkSpeed", string.Empty}
@@ -325,20 +368,22 @@ internal static class Program {
     }
 
     private static List<string> CapcityCovertion(string s) {
-        var unit = new[] {"B", "KB", "MB", "GB", "TB", "PB"};
-        var unitIndex = 0;
+        return CapcityCovertion(s, 0);
+    }
+
+    private static List<string> CapcityCovertion(string s, int i) {
+        var unit = new[] { "B", "KB", "MB", "GB", "TB", "PB" };
         try {
             var d = double.Parse(s);
-            if (string.IsNullOrEmpty(s)) return new List<string> {string.Empty, string.Empty};
+            if (string.IsNullOrEmpty(s)) return new List<string> { string.Empty, string.Empty };
             while (d >= 1024) {
                 d /= 1024;
-                unitIndex++;
+                i++;
             }
 
-            return new List<string> {Math.Round(d, 2).ToString(CultureInfo.CurrentCulture), unit[unitIndex]};
-        }
-        catch (Exception) {
-            return new List<string> {string.Empty, string.Empty};
+            return new List<string> { Math.Round(d, 2).ToString(CultureInfo.CurrentCulture), unit[i] };
+        } catch (Exception) {
+            return new List<string> { string.Empty, string.Empty };
         }
     }
 
