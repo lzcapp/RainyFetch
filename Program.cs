@@ -205,7 +205,7 @@ internal static class Program {
 
         Result.Add(new[] {"\n", string.Empty});
 
-        ColorBlock();
+        // ColorBlock();
 
         foreach (var line in Result)
             if (line[0] == "\n") {
@@ -293,10 +293,12 @@ internal static class Program {
         return result;
     }
 
+    /*
     private static void ColorBlock() {
         var colors = (ConsoleColor[]) Enum.GetValues(typeof(ConsoleColor));
         foreach (var color in colors) Result.Add(new[] {"██", color.ToString()});
     }
+    */
 
     private static void Uptime(string strBoot, string strLocal) {
         var boot = ManagementDateTimeConverter.ToDateTime(strBoot);
