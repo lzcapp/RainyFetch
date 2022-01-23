@@ -5,6 +5,7 @@ namespace RainyFetch;
 
 internal static class Program {
     private const string Space = "     ";
+
     private static readonly string[] Logo = {
         @"                                  ..,",
         @"                      ....,,:;+ccllll",
@@ -26,6 +27,7 @@ internal static class Program {
         @"                         ````''*::cll",
         @"                                   ``"
     };
+
     private static readonly string[] Architecture = {
         "x86",
         "MIPS",
@@ -37,18 +39,19 @@ internal static class Program {
         // Itanium-based systems
         "",
         "",
-        "x64",
+        "x64"
     };
+
     private static readonly ManagementClass Mc = new();
     private static int _lineNum;
 
     private static readonly Dictionary<string, string[]> Dict = new() {
         {"Win32_ComputerSystem", new[] {"UserName", "Name", "Manufacturer", "SystemFamily"}},
-        {"Win32_OperatingSystem", new[] {"Caption", "Version", "OSArchitecture", "LastBootUpTime", "LocalDateTime", "RegisteredUser" } },
-        {"Win32_Processor", new[] {"Name", "CurrentClockSpeed", "MaxClockSpeed", "NumberOfCores", "NumberOfEnabledCore", "NumberOfLogicalProcessors", "ThreadCount", "L2CacheSize", "L3CacheSize", "Architecture" } },
+        {"Win32_OperatingSystem", new[] {"Caption", "Version", "OSArchitecture", "LastBootUpTime", "LocalDateTime", "RegisteredUser"}},
+        {"Win32_Processor", new[] {"Name", "CurrentClockSpeed", "MaxClockSpeed", "NumberOfCores", "NumberOfEnabledCore", "NumberOfLogicalProcessors", "ThreadCount", "L2CacheSize", "L3CacheSize", "Architecture"}},
         {"Win32_VideoController", new[] {"Name", "AdapterRAM", "AdapterDACType"}},
         {"Win32_BaseBoard", new[] {"Manufacturer", "Product", "SerialNumber", "Version"}},
-        {"Win32_PhysicalMemory", new[] {"Capacity", "ConfiguredClockSpeed", "Manufacturer", "DeviceLocator" } },
+        {"Win32_PhysicalMemory", new[] {"Capacity", "ConfiguredClockSpeed", "Manufacturer", "DeviceLocator"}},
         {"Win32_DiskDrive", new[] {"Size", "Caption"}},
         {"Win32_NetworkAdapter", new[] {"PhysicalAdapter", "Name", "Speed"}}
     };
@@ -92,7 +95,7 @@ internal static class Program {
 
         Result.Add(new[] {"\n", string.Empty});
         if (dictBb[0]["SerialNumber"] != "None") {
-            Result.Add(new []{ Space + "SN: ", "red"});
+            Result.Add(new[] {Space + "SN: ", "red"});
             Result.Add(new[] {dictBb[0]["SerialNumber"], "white"});
             Result.Add(new[] {"\n", string.Empty});
         }
@@ -100,11 +103,11 @@ internal static class Program {
         var dictOs = Wmic("Win32_OperatingSystem");
         Result.Add(new[] {"O S: ", "red"});
         Result.Add(new[] {dictOs[0]["Caption"], "white"});
-        Result.Add(new[] { " · ", "red" });
-        Result.Add(new[] { dictOs[0]["Version"], "white" });
+        Result.Add(new[] {" · ", "red"});
+        Result.Add(new[] {dictOs[0]["Version"], "white"});
         Result.Add(new[] {"\n", string.Empty});
-        Result.Add(new[] { Space + "Registered to ", "red"});
-        Result.Add(new[] { dictOs[0]["RegisteredUser"], "white" });
+        Result.Add(new[] {Space + "Registered to ", "red"});
+        Result.Add(new[] {dictOs[0]["RegisteredUser"], "white"});
         Result.Add(new[] {"\n", string.Empty});
 
         Result.Add(new[] {"U P: ", "red"});
@@ -143,6 +146,7 @@ internal static class Program {
                 Result.Add(new[] {cpu["NumberOfEnabledCore"], "white"});
                 Result.Add(new[] {" " + strCore + " ", "red"});
             }
+
             if (cpu["ThreadCount"] == "1") strThread = "thread";
             if (cpu["NumberOfLogicalProcessors"] == cpu["ThreadCount"]) {
                 Result.Add(new[] {cpu["ThreadCount"], "white"});
@@ -154,16 +158,17 @@ internal static class Program {
                 Result.Add(new[] {cpu["ThreadCount"], "white"});
                 Result.Add(new[] {" " + strThread + " ", "red"});
             }
+
             Result.Add(new[] {"\n", string.Empty});
-            Result.Add(new [] { Space + "Architecture: ", "red"});
-            Result.Add(new[] { Architecture[int.Parse(cpu["Architecture"])], "white" });
-            Result.Add(new[] { " · L2: ", "red" });
-            Result.Add(new[] {CapcityCovertion(cpu["L2CacheSize"])[0], "white" });
-            Result.Add(new[] { " " + CapcityCovertion(cpu["L2CacheSize"], 1)[1], "red" });
-            Result.Add(new[] { " · L3: ", "red" });
-            Result.Add(new[] { CapcityCovertion(cpu["L3CacheSize"])[0], "white" });
-            Result.Add(new[] { " " + CapcityCovertion(cpu["L3CacheSize"], 1)[1], "red" });
-            Result.Add(new[] { "\n", string.Empty });
+            Result.Add(new[] {Space + "Architecture: ", "red"});
+            Result.Add(new[] {Architecture[int.Parse(cpu["Architecture"])], "white"});
+            Result.Add(new[] {" · L2: ", "red"});
+            Result.Add(new[] {CapcityCovertion(cpu["L2CacheSize"])[0], "white"});
+            Result.Add(new[] {" " + CapcityCovertion(cpu["L2CacheSize"], 1)[1], "red"});
+            Result.Add(new[] {" · L3: ", "red"});
+            Result.Add(new[] {CapcityCovertion(cpu["L3CacheSize"])[0], "white"});
+            Result.Add(new[] {" " + CapcityCovertion(cpu["L3CacheSize"], 1)[1], "red"});
+            Result.Add(new[] {"\n", string.Empty});
             count++;
         }
 
@@ -200,8 +205,8 @@ internal static class Program {
                 order = string.Empty;
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
-            Result.Add(new[] { mem["DeviceLocator"], "white" });
-            Result.Add(new[] { " · ", "red" });
+            Result.Add(new[] {mem["DeviceLocator"], "white"});
+            Result.Add(new[] {" · ", "red"});
             var capacity = CapcityCovertion(mem["Capacity"]);
             Result.Add(new[] {capacity[0], "white"});
             Result.Add(new[] {" " + capacity[1], "red"});
@@ -234,9 +239,10 @@ internal static class Program {
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
             if (!string.IsNullOrEmpty(dsk["Caption"])) {
-                Result.Add(new[] { dsk["Caption"], "white" });
-                Result.Add(new[] { " · ", "red" });
+                Result.Add(new[] {dsk["Caption"], "white"});
+                Result.Add(new[] {" · ", "red"});
             }
+
             var capacity = CapcityCovertion(dsk["Size"]);
             Result.Add(new[] {capacity[0], "white"});
             Result.Add(new[] {" " + capacity[1], "red"});
@@ -372,18 +378,19 @@ internal static class Program {
     }
 
     private static List<string> CapcityCovertion(string s, int i) {
-        var unit = new[] { "B", "KB", "MB", "GB", "TB", "PB" };
+        var unit = new[] {"B", "KB", "MB", "GB", "TB", "PB"};
         try {
             var d = double.Parse(s);
-            if (string.IsNullOrEmpty(s)) return new List<string> { string.Empty, string.Empty };
+            if (string.IsNullOrEmpty(s)) return new List<string> {string.Empty, string.Empty};
             while (d >= 1024) {
                 d /= 1024;
                 i++;
             }
 
-            return new List<string> { Math.Round(d, 2).ToString(CultureInfo.CurrentCulture), unit[i] };
-        } catch (Exception) {
-            return new List<string> { string.Empty, string.Empty };
+            return new List<string> {Math.Round(d, 2).ToString(CultureInfo.CurrentCulture), unit[i]};
+        }
+        catch (Exception) {
+            return new List<string> {string.Empty, string.Empty};
         }
     }
 
