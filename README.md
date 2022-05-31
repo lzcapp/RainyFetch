@@ -5,7 +5,6 @@
 ## Source codes
 
 - GitHub: [RainySummerLuo/RainyFetch/](https://github.com/RainySummerLuo/RainyFetch/)
-- Gitee: [rainysummerluo/RainyFetch](https://gitee.com/rainysummerluo/RainyFetch)
 
 ## Changelog
 
