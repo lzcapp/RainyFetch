@@ -1,14 +1,8 @@
 # RainyFetch
 
+[![](https://img.shields.io/github/v/release/lzcapp/RainyFetch?style=for-the-badge)](https://github.com/lzcapp/RainyFetch/releases/latest)
+
 ![Screenshot](https://user-images.githubusercontent.com/12462465/150668773-50e69d87-df38-4f7b-a058-5c7b7641264f.png)
-
-## Source codes
-
-- GitHub: [RainySummerLuo/RainyFetch/](https://github.com/RainySummerLuo/RainyFetch/)
-
-## Changelog
-
-- **Full Changelog**: https://github.com/RainySummerLuo/RainyFetch/compare/1.1.0...2.1.3
 
 ## Prerequisites
 
