@@ -88,10 +88,10 @@ internal static class Program {
             Result.Add(new[] {dictBb[0]["Product"], "white"});
         }
 
-        if (dictBb[0]["Version"] != "None") {
+        /*if (dictBb[0]["Version"] != "None") {
             Result.Add(new[] {" · ", "red"});
             Result.Add(new[] {dictBb[0]["Version"], "white"});
-        }
+        }*/
 
         Result.Add(new[] {"\n", string.Empty});
         if (dictBb[0]["SerialNumber"] != "None") {
@@ -184,13 +184,17 @@ internal static class Program {
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
             Result.Add(new[] {gpu["Name"], "white"});
-            Result.Add(new[] {"\n", string.Empty});
-            Result.Add(new[] {Space + "   ", "red"});
-            Result.Add(new[] {CapcityCovertion(gpu["AdapterRAM"])[0], "white"});
-            Result.Add(new[] {" " + CapcityCovertion(gpu["AdapterRAM"])[1], "red"});
-            Result.Add(new[] {" · ", "red"});
-            Result.Add(new[] {gpu["AdapterDACType"], "white"});
-            Result.Add(new[] {"\n", string.Empty});
+            if (!string.IsNullOrEmpty(gpu["AdapterRAM"].Trim())) {
+                Result.Add(new[] {"\n", string.Empty});
+                Result.Add(new[] {Space + "   ", "red"});
+                Result.Add(new[] {CapcityCovertion(gpu["AdapterRAM"])[0], "white"});
+                Result.Add(new[] {" " + CapcityCovertion(gpu["AdapterRAM"])[1], "red"});
+            }
+            if (!string.IsNullOrEmpty(gpu["AdapterDACType"].Trim())) {
+                Result.Add(new[] { " · ", "red" });
+                Result.Add(new[] { gpu["AdapterDACType"], "white" });
+            }
+            Result.Add(new[] { "\n", string.Empty });
             count++;
         }
 
@@ -313,7 +317,7 @@ internal static class Program {
                 result.Add(property, string.Empty);
                 try {
                     var query = mo.Properties[property].Value.ToString();
-                    if (!string.IsNullOrEmpty(query)) result[property] = query;
+                    if (!string.IsNullOrEmpty(query)) result[property] = query.Replace("To be filled by O.E.M.", "");
                 }
                 catch (Exception) {
                     // ignored
