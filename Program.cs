@@ -373,11 +373,7 @@ internal static class Program {
         Result.Add(new[] {" S ", "red"});
     }
 
-    private static List<string> CapcityCovertion(string s) {
-        return CapcityCovertion(s, 0);
-    }
-
-    private static List<string> CapcityCovertion(string s, int i) {
+    private static List<string> CapcityCovertion(string s, int i = 0) {
         var unit = new[] {"B", "KB", "MB", "GB", "TB", "PB"};
         try {
             var d = double.Parse(s);
