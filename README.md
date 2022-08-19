@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/.Net%20Core-3.1-lightgrey?style=for-the-badge&logo=windows)&ensp;
 [![](https://img.shields.io/github/v/release/lzcapp/RainyFetch?style=for-the-badge)](https://github.com/lzcapp/RainyFetch/releases/latest)
 
-![Screenshot](https://user-images.githubusercontent.com/12462465/150668773-50e69d87-df38-4f7b-a058-5c7b7641264f.png)
+![Screenshot](https://user-images.githubusercontent.com/12462465/185534302-ccd40c4f-3e48-4cf4-801e-148b53c3491a.png)
 
 ## Prerequisites
 
