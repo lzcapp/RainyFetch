@@ -186,7 +186,7 @@ internal static class Program {
             Result.Add(new[] {gpu["Name"], "white"});
             if (!string.IsNullOrEmpty(gpu["AdapterRAM"].Trim())) {
                 Result.Add(new[] {"\n", string.Empty});
-                Result.Add(new[] {Space + "   ", "red"});
+                Result.Add(new[] {Space, "red"});
                 Result.Add(new[] {CapcityCovertion(gpu["AdapterRAM"])[0], "white"});
                 Result.Add(new[] {" " + CapcityCovertion(gpu["AdapterRAM"])[1], "red"});
             }
