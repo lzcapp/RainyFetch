@@ -84,8 +84,9 @@ internal static class Program {
         Result.Add(new[] {"M B: ", "red"});
         Result.Add(new[] {dictBb[0]["Manufacturer"], "white"});
         if (dictBb[0]["Product"] != "None") {
-            Result.Add(new[] {" ", "red"});
-            Result.Add(new[] {dictBb[0]["Product"], "white"});
+            Result.Add(new[] { "\n", string.Empty });
+            //Result.Add(new[] {" ", "red"});
+            Result.Add(new[] { Space + dictBb[0]["Product"], "white"});
         }
 
         /*if (dictBb[0]["Version"] != "None") {
@@ -267,11 +268,14 @@ internal static class Program {
             if (count > 1) tab = Space;
             Result.Add(new[] {tab + order, "red"});
             Result.Add(new[] {net["Name"], "white"});
-            Result.Add(new[] {" · ", "red"});
             var speed = SpeedCovertion(Wmi(net["Name"])["LinkSpeed"]);
-            Result.Add(new[] {speed[0], "white"});
-            Result.Add(new[] {" " + speed[1], "red"});
-            Result.Add(new[] {"\n", string.Empty});
+            if (!string.IsNullOrEmpty(speed[0]))
+            {
+                Result.Add(new[] { " · ", "red" });
+                Result.Add(new[] { speed[0], "white" });
+                Result.Add(new[] { " " + speed[1], "red" });
+                Result.Add(new[] { "\n", string.Empty });
+            }
             count++;
         }
 
