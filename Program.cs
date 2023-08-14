@@ -274,8 +274,8 @@ internal static class Program {
                 Result.Add(new[] { " · ", "red" });
                 Result.Add(new[] { speed[0], "white" });
                 Result.Add(new[] { " " + speed[1], "red" });
-                Result.Add(new[] { "\n", string.Empty });
             }
+            Result.Add(new[] { "\n", string.Empty });
             count++;
         }
 
