@@ -399,7 +399,7 @@ internal static class Program {
     }
 
     private static List<string> SpeedCovertion(string s) {
-        var unit = new[] {"KB/s", "MB/s", "GB/s", "TB/s", "PB/s"};
+        var unit = new[] { "Kbps", "Mbps", "Gbps", "Tbps", "Pbps" };
         var unitIndex = 0;
         if (s == "9223372036854775807") return new List<string> {string.Empty, string.Empty};
         try {
