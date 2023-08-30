@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<PublishSingleFile>true</PublishSingleFile>
 		<!--<PublishTrimmed>true</PublishTrimmed>-->
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -23,17 +23,21 @@
 		<PackageLicenseFile>C:\Codes\RainyFetch\LICENSE</PackageLicenseFile>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<IncludeSymbols>False</IncludeSymbols>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 		<FileAlignment>1024</FileAlignment>
-		<Optimize>True</Optimize>
+		<Optimize>False</Optimize>
+		<DebugType>full</DebugType>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
 		<FileAlignment>1024</FileAlignment>
+		<Optimize>False</Optimize>
+		<DebugType>full</DebugType>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -42,6 +46,21 @@
 
 	<ItemGroup>
 		<PackageReference Include="System.Management" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Resources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
 	</ItemGroup>
 
 	<ItemGroup>

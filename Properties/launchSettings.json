@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RainyFetch": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
