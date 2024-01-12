@@ -48,9 +48,10 @@ internal static class Program {
     private static readonly Dictionary<string, string[]> Dict = new() {
         {"Win32_ComputerSystem", new[] {"UserName", "Name", "Manufacturer", "SystemFamily"}},
         {"Win32_OperatingSystem", new[] {"Caption", "Version", "OSArchitecture", "LastBootUpTime", "LocalDateTime", "RegisteredUser"}},
-        {"Win32_Processor", new[] {"Name", "CurrentClockSpeed", "MaxClockSpeed", "NumberOfCores", "NumberOfEnabledCore", "NumberOfLogicalProcessors", "ThreadCount", "L2CacheSize", "L3CacheSize", "Architecture"}},
+        {"Win32_Processor", new[] {"Name", "Caption", "CurrentClockSpeed", "MaxClockSpeed", "NumberOfCores", "NumberOfEnabledCore", "NumberOfLogicalProcessors", "ThreadCount", "L2CacheSize", "L3CacheSize", "Architecture"}},
         {"Win32_VideoController", new[] {"Name", "AdapterRAM", "AdapterDACType"}},
         {"Win32_BaseBoard", new[] {"Manufacturer", "Product", "SerialNumber", "Version"}},
+        {"Win32_BIOS", new []{"Manufacturer", "Caption"}},
         {"Win32_PhysicalMemory", new[] {"Capacity", "ConfiguredClockSpeed", "Manufacturer", "DeviceLocator"}},
         {"Win32_DiskDrive", new[] {"Size", "Caption"}},
         {"Win32_NetworkAdapter", new[] {"PhysicalAdapter", "Name", "Speed"}}
@@ -81,12 +82,12 @@ internal static class Program {
         Result.Add(new[] { "\n", string.Empty });
 
         var dictBb = Wmic("Win32_BaseBoard");
+        var dictBi = Wmic("Win32_BIOS");
         Result.Add(new[] { "M B: ", "red" });
         Result.Add(new[] { dictBb[0]["Manufacturer"], "white" });
         if (dictBb[0]["Product"] != "None") {
-            Result.Add(new[] { "\n", string.Empty });
-            //Result.Add(new[] {" ", "red"});
-            Result.Add(new[] { Space + dictBb[0]["Product"], "white" });
+            Result.Add(new[] { " · ", "red"});
+            Result.Add(new[] { dictBb[0]["Product"], "white" });
         }
 
         /*if (dictBb[0]["Version"] != "None") {
@@ -100,6 +101,12 @@ internal static class Program {
             Result.Add(new[] { dictBb[0]["SerialNumber"], "white" });
             Result.Add(new[] { "\n", string.Empty });
         }
+        
+        Result.Add(new[] { Space + "BIOS: ", "red" });
+        Result.Add(new[] { dictBi[0]["Manufacturer"], "white" });
+        Result.Add(new[] { " · ", "red"});
+        Result.Add(new[] { dictBi[0]["Caption"], "white" });
+        Result.Add(new[] { "\n", string.Empty });
 
         var dictOs = Wmic("Win32_OperatingSystem");
         Result.Add(new[] { "O S: ", "red" });
@@ -129,6 +136,8 @@ internal static class Program {
             if (count > 1) tab = Space;
             Result.Add(new[] { tab + order, "red" });
             Result.Add(new[] { cpu["Name"], "white" });
+            Result.Add(new[] { "\n", string.Empty });
+            Result.Add(new[] { Space + cpu["Caption"], "white" });
             Result.Add(new[] { "\n", string.Empty });
             Result.Add(new[] { Space + cpu["CurrentClockSpeed"], "white" });
             Result.Add(new[] { " MHz", "red" });
@@ -184,8 +193,7 @@ internal static class Program {
             Result.Add(new[] { tab + order, "red" });
             Result.Add(new[] { gpu["Name"], "white" });
             if (!string.IsNullOrEmpty(gpu["AdapterRAM"].Trim())) {
-                Result.Add(new[] { "\n", string.Empty });
-                Result.Add(new[] { Space, "red" });
+                Result.Add(new[] { " · ", "red" });
                 Result.Add(new[] { CapcityCovertion(gpu["AdapterRAM"])[0], "white" });
                 Result.Add(new[] { " " + CapcityCovertion(gpu["AdapterRAM"])[1], "red" });
             }
