@@ -75,8 +75,9 @@ namespace RainyFetch {
 
             Result.Add(["\n", string.Empty]);
             var dictCs = Wmic("Win32_ComputerSystem");
-            var strUser = dictCs[0]["UserName"][(dictCs[0]["UserName"].IndexOf("\\", StringComparison.Ordinal) + 1)..]
-                .Trim();
+            var userName = dictCs[0]["UserName"];
+            var index = userName.IndexOf("\\", StringComparison.Ordinal) + 1;
+            var strUser = index >= 0 ? userName.Substring(index).Trim() : string.Empty;
             var strSystem = dictCs[0]["Name"];
             var strName = dictCs[0]["Manufacturer"] + " " + dictCs[0]["SystemFamily"];
 
@@ -337,7 +338,7 @@ namespace RainyFetch {
             ManagementObjectCollection moc = Mc.GetInstances();
             foreach (ManagementBaseObject o in moc) {
                 var mo = (ManagementObject)o;
-                Dictionary<string, string> result = new();
+                Dictionary<string, string> result = [];
                 foreach (var property in properties) {
                     result.Add(property, string.Empty);
                     try {
@@ -438,7 +439,7 @@ namespace RainyFetch {
 
         private static string UpperFirstLetter(string s) {
             if (string.IsNullOrEmpty(s)) return string.Empty;
-            return char.ToUpper(s[0]) + s[1..];
+            return char.ToUpper(s[0]) + s.Substring(1);
         }
     }
 }
