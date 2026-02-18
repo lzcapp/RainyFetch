@@ -41,7 +41,10 @@ namespace RainyFetch {
             // Itanium-based systems
             "",
             "",
-            "x64"
+            "x64",
+            "",
+            "",
+            "ARM64"
         ];
 
         private static readonly ManagementClass Mc = new();
@@ -342,7 +345,9 @@ namespace RainyFetch {
                 foreach (var property in properties) {
                     result.Add(property, string.Empty);
                     try {
-                        var query = mo.Properties[property].Value.ToString();
+                        var value = mo.Properties[property].Value;
+                        var query = "";
+                        if (value != null) query = value.ToString()!.Trim();
                         if (!string.IsNullOrEmpty(query)) result[property] = query.Replace("To be filled by O.E.M.", "");
                     } catch (Exception) {
                         // ignored
