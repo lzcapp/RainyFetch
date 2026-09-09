@@ -75,6 +75,10 @@ push/PR to `main` (GitHub Actions, `windows-latest`). Artifacts are uploaded und
 names as the Releases assets: `RainyFetch_x64`, `RainyFetch_x64_runtime`,
 `RainyFetch_x86`, `RainyFetch_x86_runtime`.
 
+Pushing a tag (e.g. `2.4.0`) additionally creates the GitHub Release itself:
+the four executables are attached and the release notes are generated from the
+commits since the previous tag.
+
 ## Notes
 
 - Output is written using the console code page (e.g. GBK on a Chinese-locale system).

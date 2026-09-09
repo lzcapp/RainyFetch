@@ -3,7 +3,9 @@ name: build
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*' ]
+    # Existing release tags have no "v" prefix (2.3.0, 2.2.5, ...);
+    # match both styles so a plain "2.4.0" tag still triggers a build.
+    tags: [ '[0-9]+.[0-9]+.[0-9]+', 'v*' ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -84,3 +86,25 @@ jobs:
           name: RainyFetch_x86_runtime
           path: bin/publish/x86-runtime
           if-no-files-found: error
+
+  # Tag push only: collect the four artifacts and publish them on a
+  # GitHub Release with auto-generated notes.
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/RainyFetch_x64/RainyFetch_x64.exe
+            artifacts/RainyFetch_x64_runtime/RainyFetch_x64_runtime.exe
+            artifacts/RainyFetch_x86/RainyFetch_x86.exe
+            artifacts/RainyFetch_x86_runtime/RainyFetch_x86_runtime.exe
