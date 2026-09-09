@@ -8,7 +8,13 @@ on:
     tags: [ '[0-9]+.[0-9]+.[0-9]+', 'v*' ]
   pull_request:
     branches: [ main ]
+  # One-click release: fill in the version (e.g. 2.4.0) and CI creates
+  # the tag, builds, publishes the four executables and generates notes.
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version to create (e.g. 2.4.0)'
+        required: true
 
 jobs:
   build:
@@ -87,24 +93,47 @@ jobs:
           path: bin/publish/x86-runtime
           if-no-files-found: error
 
-  # Tag push only: collect the four artifacts and publish them on a
-  # GitHub Release with auto-generated notes.
+  # Runs on a tag push, or on a manual dispatch that supplies the version.
+  # Dispatch: the release API creates the tag at target_commitish, and the
+  # fallback step below makes sure it really exists on the remote.
   release:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
 
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          target_commitish: ${{ github.sha }}
           generate_release_notes: true
           files: |
             artifacts/RainyFetch_x64/RainyFetch_x64.exe
             artifacts/RainyFetch_x64_runtime/RainyFetch_x64_runtime.exe
             artifacts/RainyFetch_x86/RainyFetch_x86.exe
             artifacts/RainyFetch_x86_runtime/RainyFetch_x86_runtime.exe
+
+      - name: Ensure the git tag exists (dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ inputs.version }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            echo "Tag $tag is present on the remote."
+          else
+            echo "Tag $tag missing; creating it from ${{ github.sha }}."
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag "$tag" "${{ github.sha }}"
+            git push origin "$tag"
+          fi

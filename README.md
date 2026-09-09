@@ -79,6 +79,9 @@ Pushing a tag (e.g. `2.4.0`) additionally creates the GitHub Release itself:
 the four executables are attached and the release notes are generated from the
 commits since the previous tag.
 
+No command line needed either: **Actions → build → Run workflow → enter the version**
+creates that tag, builds and publishes the release in one go.
+
 ## Notes
 
 - Output is written using the console code page (e.g. GBK on a Chinese-locale system).
