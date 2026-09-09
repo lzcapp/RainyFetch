@@ -1,0 +1,53 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore & build (Release)
+        run: dotnet build RainyFetch.csproj -c Release
+
+      # Quick sanity check: run the build on the runner and make sure it
+      # actually prints system info without crashing.
+      - name: Smoke test
+        run: |
+          .\bin\Release\net8.0-windows\RainyFetch.exe > smoke.txt
+          if ($LASTEXITCODE -ne 0) { Write-Error "RainyFetch exited with $LASTEXITCODE"; exit $LASTEXITCODE }
+          $size = (Get-Item smoke.txt).Length
+          if ($size -lt 500) { Write-Error "Smoke output unexpectedly short ($size bytes)"; exit 1 }
+          Write-Host "Smoke OK, $size bytes captured"
+
+      - name: Publish win-x64 (framework-dependent)
+        run: dotnet publish RainyFetch.csproj -c Release -r win-x64 --self-contained false -o bin/publish/win-x64
+
+      - name: Publish win-x86 (self-contained single file)
+        run: >
+          dotnet publish RainyFetch.csproj -c Release -r win-x86 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -o bin/publish/win-x86
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RainyFetch-win-x64-fdd
+          path: bin/publish/win-x64
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RainyFetch-win-x86-singlefile
+          path: bin/publish/win-x86
+          if-no-files-found: error
