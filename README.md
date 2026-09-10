@@ -40,25 +40,30 @@ The output lands in `bin\Release\net8.0-windows\RainyFetch.exe`.
 
 ## Publish
 
-Four flavors are published (also by CI), matching the Releases asset naming
-(`RainyFetch_<arch>.exe` = framework-dependent, `RainyFetch_<arch>_runtime.exe` =
-self-contained single file; only the apphost exe is renamed, the `RainyFetch.dll`
-and `.deps.json` keep their names):
+Four flavors are published (also by CI), matching the Releases asset naming.
+**Every asset is a single file that runs on its own** — downloading just the exe works:
+
+| Asset | Size | Needs .NET 8 runtime |
+|---|---|---|
+| `RainyFetch_x64.exe` / `RainyFetch_x86.exe` | ~1.4 MB | yes |
+| `RainyFetch_x64_runtime.exe` / `RainyFetch_x86_runtime.exe` | ~60 MB | no (bundled) |
 
 ```console
-REM win-x64, framework-dependent (small; needs the .NET 8 runtime)
-dotnet publish RainyFetch.csproj -c Release -r win-x64 --self-contained false -o bin\publish\x64
+REM win-x64, framework-dependent single file (small; needs the .NET 8 runtime)
+dotnet publish RainyFetch.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o bin\publish\x64
 REM then rename RainyFetch.exe -> RainyFetch_x64.exe
 
 REM win-x64, self-contained single file (~65 MB; runs anywhere)
 dotnet publish RainyFetch.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o bin\publish\x64-runtime
 REM then rename RainyFetch.exe -> RainyFetch_x64_runtime.exe
 
-REM win-x86, framework-dependent
-dotnet publish RainyFetch.csproj -c Release -r win-x86 --self-contained false -o bin\publish\x86
+REM win-x86, framework-dependent single file
+dotnet publish RainyFetch.csproj -c Release -r win-x86 --self-contained false -p:PublishSingleFile=true -o bin\publish\x86
+REM then rename RainyFetch.exe -> RainyFetch_x86.exe
 
 REM win-x86, self-contained single file (~60 MB; runs anywhere)
 dotnet publish RainyFetch.csproj -c Release -r win-x86 --self-contained true -p:PublishSingleFile=true -o bin\publish\x86-runtime
+REM then rename RainyFetch.exe -> RainyFetch_x86_runtime.exe
 ```
 
 > Trimming is intentionally **not** used: `System.Management` (WMI) relies on

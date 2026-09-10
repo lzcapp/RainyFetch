@@ -39,13 +39,16 @@ jobs:
           if ($size -lt 500) { Write-Error "Smoke output unexpectedly short ($size bytes)"; exit 1 }
           Write-Host "Smoke OK, $size bytes captured"
 
-      # Release matrix matches the existing asset naming on the Releases page:
-      # RainyFetch_<arch>.exe        = framework-dependent (needs the .NET 8 runtime)
-      # RainyFetch_<arch>_runtime.exe = self-contained single file (runs anywhere)
-      # Only the apphost exe is renamed; RainyFetch.dll / *.deps.json keep their names.
-      - name: Publish win-x64 (framework-dependent)
+      # Release matrix matches the existing asset naming on the Releases page.
+      # Every asset is a SINGLE file that runs on its own (downloading just the
+      # exe must work):
+      #   RainyFetch_<arch>.exe         = framework-dependent (~1.4 MB, needs the .NET 8 runtime)
+      #   RainyFetch_<arch>_runtime.exe = self-contained (~60 MB, runs anywhere)
+      # Renaming the single-file exe is safe: everything is bundled inside it.
+      - name: Publish win-x64 (framework-dependent single file)
         run: |
-          dotnet publish RainyFetch.csproj -c Release -r win-x64 --self-contained false -o bin/publish/x64
+          dotnet publish RainyFetch.csproj -c Release -r win-x64 --self-contained false `
+            -p:PublishSingleFile=true -o bin/publish/x64
           Remove-Item bin/publish/x64/*.pdb -ErrorAction SilentlyContinue
           Rename-Item bin/publish/x64/RainyFetch.exe RainyFetch_x64.exe
 
@@ -56,9 +59,10 @@ jobs:
           Remove-Item bin/publish/x64-runtime/*.pdb -ErrorAction SilentlyContinue
           Rename-Item bin/publish/x64-runtime/RainyFetch.exe RainyFetch_x64_runtime.exe
 
-      - name: Publish win-x86 (framework-dependent)
+      - name: Publish win-x86 (framework-dependent single file)
         run: |
-          dotnet publish RainyFetch.csproj -c Release -r win-x86 --self-contained false -o bin/publish/x86
+          dotnet publish RainyFetch.csproj -c Release -r win-x86 --self-contained false `
+            -p:PublishSingleFile=true -o bin/publish/x86
           Remove-Item bin/publish/x86/*.pdb -ErrorAction SilentlyContinue
           Rename-Item bin/publish/x86/RainyFetch.exe RainyFetch_x86.exe
 
